@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\FoodCategoryController;
+use App\Http\Controllers\FoodController;
 use App\Http\Controllers\FoodTableController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,4 +14,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('food-categories', FoodCategoryController::class);
     Route::apiResource('food-tables', FoodTableController::class);
+    Route::apiResource('foods', FoodController::class);
 });

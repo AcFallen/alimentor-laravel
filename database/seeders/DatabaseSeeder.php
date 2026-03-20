@@ -20,5 +20,10 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@alimentor.net.pe',
             'password' => 'password',
         ]);
+
+        $this->call([
+            FoodCategorySeeder::class,
+            FoodTableSeeder::class,
+        ]);
     }
 }
