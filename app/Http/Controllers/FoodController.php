@@ -39,7 +39,7 @@ class FoodController extends Controller
 
     public function show(Food $food): FoodResource
     {
-        $food->load(['category', 'table']);
+        $food->load(['category', 'table', 'units']);
 
         return new FoodResource($food);
     }

@@ -2,16 +2,14 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Food;
+use App\Models\Recipe;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin Food */
-class FoodResource extends JsonResource
+/** @mixin Recipe */
+class RecipeResource extends JsonResource
 {
     /**
-     * Transform the resource into an array.
-     *
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array
@@ -19,12 +17,11 @@ class FoodResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'performance' => $this->performance,
-            'nutrients' => $this->nutrients,
+            'preparation' => $this->preparation,
+            'servings' => $this->servings,
             'is_active' => $this->is_active,
-            'category' => $this->whenLoaded('category'),
-            'table' => $this->whenLoaded('table'),
-            'units' => FoodUnitResource::collection($this->whenLoaded('units')),
+            'category' => new RecipeCategoryResource($this->whenLoaded('category')),
+            'items' => RecipeItemResource::collection($this->whenLoaded('items')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

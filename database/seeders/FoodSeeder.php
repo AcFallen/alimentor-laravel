@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Food;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class FoodSeeder extends Seeder
 {
@@ -53,7 +54,9 @@ class FoodSeeder extends Seeder
      */
     public function run(): void
     {
+        Schema::disableForeignKeyConstraints();
         Food::query()->truncate();
+        Schema::enableForeignKeyConstraints();
 
         $this->importPeruvianTable();
         $this->importUsaPeruTable();
