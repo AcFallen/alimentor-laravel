@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Food\SearchFoodRequest;
 use App\Http\Requests\Food\StoreFoodRequest;
 use App\Http\Requests\Food\UpdateFoodRequest;
 use App\Http\Resources\FoodResource;
@@ -12,10 +13,22 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class FoodController extends Controller
 {
+    public function search(SearchFoodRequest $request): AnonymousResourceCollection
+    {
+        $foods = Food::query()
+            ->with(['category', 'table', 'units'])
+            ->where('food_table_id', $request->validated('food_table_id'))
+            ->where('name', 'like', '%'.$request->validated('search').'%')
+            ->limit(20)
+            ->get();
+
+        return FoodResource::collection($foods);
+    }
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $foods = Food::query()
-            ->with(['category', 'table'])
+            ->with(['category', 'table', 'units'])
             ->when($request->query('search'), function ($query, string $search) {
                 $query->where('name', 'like', "%{$search}%");
             })

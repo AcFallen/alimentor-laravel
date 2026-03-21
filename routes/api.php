@@ -18,6 +18,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('food-categories', FoodCategoryController::class);
     Route::apiResource('food-tables', FoodTableController::class);
+    Route::get('foods/search', [FoodController::class, 'search'])->name('foods.search');
     Route::apiResource('foods', FoodController::class);
     Route::apiResource('foods.units', FoodUnitController::class)->shallow();
 

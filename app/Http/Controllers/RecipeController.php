@@ -47,7 +47,7 @@ class RecipeController extends Controller
 
     public function show(Recipe $recipe): RecipeResource
     {
-        $recipe->load(['category', 'items.food', 'items.foodUnit']);
+        $recipe->load(['category', 'items.food.units', 'items.foodUnit']);
 
         return new RecipeResource($recipe);
     }
