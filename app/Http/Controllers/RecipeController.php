@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Recipe\SearchRecipeRequest;
 use App\Http\Requests\Recipe\StoreRecipeRequest;
 use App\Http\Requests\Recipe\UpdateRecipeRequest;
 use App\Http\Resources\RecipeResource;
@@ -13,6 +14,17 @@ use Illuminate\Support\Facades\DB;
 
 class RecipeController extends Controller
 {
+    public function search(SearchRecipeRequest $request): AnonymousResourceCollection
+    {
+        $recipes = Recipe::query()
+            ->with(['category', 'items.food', 'items.foodUnit'])
+            ->where('name', 'like', '%'.$request->validated('search').'%')
+            ->limit(20)
+            ->get();
+
+        return RecipeResource::collection($recipes);
+    }
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $recipes = Recipe::query()
