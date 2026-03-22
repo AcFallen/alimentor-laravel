@@ -20,8 +20,6 @@ class RecipeFactory extends Factory
             'name' => fake()->sentence(3),
             'recipe_category_id' => RecipeCategory::factory(),
             'preparation' => fake()->paragraphs(3, true),
-            'servings' => fake()->numberBetween(1, 10),
-            'is_active' => true,
         ];
     }
 }

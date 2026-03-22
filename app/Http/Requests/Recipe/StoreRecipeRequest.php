@@ -21,8 +21,6 @@ class StoreRecipeRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'recipe_category_id' => ['required', 'integer', 'exists:recipe_categories,id'],
             'preparation' => ['nullable', 'string'],
-            'servings' => ['required', 'integer', 'min:1'],
-            'is_active' => ['sometimes', 'boolean'],
             'items' => ['sometimes', 'array'],
             'items.*.food_id' => ['required_with:items', 'integer', 'exists:foods,id'],
             'items.*.food_unit_id' => ['required_with:items', 'integer', 'min:1', 'exists:food_units,id'],

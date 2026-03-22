@@ -10,21 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['name', 'recipe_category_id', 'preparation', 'servings', 'is_active'])]
+#[Fillable(['name', 'recipe_category_id', 'preparation'])]
 class Recipe extends Model
 {
     /** @use HasFactory<RecipeFactory> */
     use HasFactory, SoftDeletes;
-
-    /**
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'is_active' => 'boolean',
-        ];
-    }
 
     /**
      * @return BelongsTo<RecipeCategory, $this>

@@ -18,8 +18,6 @@ class RecipeResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'preparation' => $this->preparation,
-            'servings' => $this->servings,
-            'is_active' => $this->is_active,
             'category' => new RecipeCategoryResource($this->whenLoaded('category')),
             'items' => RecipeItemResource::collection($this->whenLoaded('items')),
             'created_at' => $this->created_at,
