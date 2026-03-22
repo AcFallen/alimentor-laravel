@@ -25,8 +25,8 @@ Abrir una terminal dentro de Laragon (Menu > Terminal) y ejecutar:
 
 ```bash
 cd C:\laragon\www
-git clone <URL_DEL_REPOSITORIO> alimentor-laravel
-cd alimentor-laravel
+git clone <URL_DEL_REPOSITORIO> alimentor
+cd alimentor
 ```
 
 ### 3. Ejecutar el instalador
@@ -48,9 +48,9 @@ Este script automaticamente:
 
 | Recurso | URL |
 |---------|-----|
-| Aplicacion | http://alimentor-laravel.test |
-| API | http://alimentor-laravel.test/api |
-| Documentacion API | http://alimentor-laravel.test/docs/api |
+| Aplicacion | http://alimentor.local |
+| API | http://alimentor.local/api |
+| Documentacion API | http://alimentor.local/docs/api |
 
 ### Credenciales por defecto
 
@@ -64,7 +64,7 @@ Este script automaticamente:
 Cuando haya una nueva version disponible:
 
 ```bash
-cd C:\laragon\www\alimentor-laravel
+cd C:\laragon\www\alimentor
 git pull
 update.bat
 ```

@@ -45,8 +45,8 @@ echo.
 echo    El frontend se actualizo con git pull.
 echo    Las migraciones nuevas fueron aplicadas.
 echo.
-echo    URL:   http://alimentor-laravel.test
-echo    API:   http://alimentor-laravel.test/api
-echo    Docs:  http://alimentor-laravel.test/docs/api
+echo    URL:   http://alimentor.local
+echo    API:   http://alimentor.local/api
+echo    Docs:  http://alimentor.local/docs/api
 echo ============================================
 pause

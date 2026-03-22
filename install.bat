@@ -120,9 +120,9 @@ echo ============================================
 echo    INSTALACION COMPLETADA
 echo ============================================
 echo.
-echo    URL:   http://alimentor-laravel.test
-echo    API:   http://alimentor-laravel.test/api
-echo    Docs:  http://alimentor-laravel.test/docs/api
+echo    URL:   http://alimentor.local
+echo    API:   http://alimentor.local/api
+echo    Docs:  http://alimentor.local/docs/api
 echo.
 echo    Usuario: admin@alimentor.net.pe
 echo    Clave:   password
