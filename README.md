@@ -30,24 +30,20 @@ Antes de continuar, cambiar el hostname para que use `.local`:
 
 Iniciar los servicios de Laragon haciendo click en **Start All**. Verificar que Apache/Nginx y MySQL esten activos (los iconos deben estar en verde).
 
-### 3. Clonar el repositorio
+### 3. Ejecutar el instalador
+
+Descargar el archivo [`install.bat`](https://raw.githubusercontent.com/AcFallen/alimentor-laravel/main/install.bat) y guardarlo en `C:\laragon\www\`.
 
 Abrir una terminal dentro de Laragon (**Menu > Terminal**) y ejecutar:
 
 ```bash
 cd C:\laragon\www
-git clone <URL_DEL_REPOSITORIO> alimentor
-cd alimentor
-```
-
-### 4. Ejecutar el instalador
-
-```bash
 install.bat
 ```
 
 Este script automaticamente:
-- Verifica que PHP, Composer y MySQL esten disponibles
+- Clona el repositorio en la carpeta `alimentor`
+- Verifica que Git, PHP, Composer y MySQL esten disponibles
 - Crea el archivo `.env` con la configuracion de Laragon
 - Crea la base de datos `alimentor_laravel`
 - Instala las dependencias de PHP
@@ -55,7 +51,7 @@ Este script automaticamente:
 - Ejecuta las migraciones de base de datos
 - Carga los datos iniciales (tablas de alimentos, categorias, etc.)
 
-### 5. Acceder al sistema
+### 4. Acceder al sistema
 
 | Recurso | URL |
 |---------|-----|

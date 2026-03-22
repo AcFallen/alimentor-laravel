@@ -8,8 +8,10 @@ echo ============================================
 echo.
 
 REM =============================================
-REM  CONFIGURACION - Editar si es necesario
+REM  CONFIGURACION
 REM =============================================
+SET REPO_URL=https://github.com/AcFallen/alimentor-laravel.git
+SET FOLDER_NAME=alimentor
 SET DB_NAME=alimentor_laravel
 SET DB_USER=root
 SET DB_PASS=
@@ -17,49 +19,55 @@ SET DB_PASS=
 REM =============================================
 REM  1. Verificar requisitos
 REM =============================================
-echo [1/6] Verificando requisitos...
+echo [1/7] Verificando requisitos...
 
-where php >nul 2>nul
-if %errorlevel% neq 0 (
-    echo ERROR: PHP no encontrado. Asegurate de que Laragon este iniciado.
-    pause
-    exit /b 1
-)
+where git >nul 2>nul || (echo ERROR: Git no encontrado. Asegurate de que Laragon este iniciado. && pause && exit /b 1)
+where php >nul 2>nul || (echo ERROR: PHP no encontrado. Asegurate de que Laragon este iniciado. && pause && exit /b 1)
+where composer >nul 2>nul || (echo ERROR: Composer no encontrado. Asegurate de que Laragon este iniciado. && pause && exit /b 1)
+where mysql >nul 2>nul || (echo ERROR: MySQL CLI no encontrado. Asegurate de que Laragon este iniciado. && pause && exit /b 1)
 
-where composer >nul 2>nul
-if %errorlevel% neq 0 (
-    echo ERROR: Composer no encontrado. Asegurate de que Laragon este iniciado.
-    pause
-    exit /b 1
-)
-
-where mysql >nul 2>nul
-if %errorlevel% neq 0 (
-    echo ERROR: MySQL CLI no encontrado. Asegurate de que Laragon este iniciado.
-    pause
-    exit /b 1
-)
-
-echo    PHP, Composer y MySQL encontrados.
+echo    Git, PHP, Composer y MySQL encontrados.
 echo.
 
 REM =============================================
-REM  2. Configurar .env
+REM  2. Clonar repositorio
 REM =============================================
-echo [2/6] Configurando archivo .env...
+echo [2/7] Clonando repositorio...
 
-if not exist .env (
-    copy .env.example .env >nul
-    echo    .env creado desde .env.example
-) else (
-    echo    .env ya existe, se mantiene el actual.
+if exist %FOLDER_NAME% (
+    echo    ERROR: La carpeta '%FOLDER_NAME%' ya existe.
+    echo    Si deseas reinstalar, elimina la carpeta primero.
+    pause
+    exit /b 1
 )
+
+git clone %REPO_URL% %FOLDER_NAME%
+if %errorlevel% neq 0 (
+    echo ERROR: No se pudo clonar el repositorio.
+    pause
+    exit /b 1
+)
+
+echo    Repositorio clonado.
 echo.
 
 REM =============================================
-REM  3. Crear base de datos
+REM  Entrar a la carpeta del proyecto
 REM =============================================
-echo [3/6] Creando base de datos...
+cd /d %~dp0%FOLDER_NAME%
+
+REM =============================================
+REM  3. Configurar .env
+REM =============================================
+echo [3/7] Configurando archivo .env...
+copy .env.example .env >nul
+echo    .env creado desde .env.example
+echo.
+
+REM =============================================
+REM  4. Crear base de datos
+REM =============================================
+echo [4/7] Creando base de datos...
 
 if "%DB_PASS%"=="" (
     mysql -u %DB_USER% -e "CREATE DATABASE IF NOT EXISTS %DB_NAME% CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>nul
@@ -77,9 +85,9 @@ echo    Base de datos '%DB_NAME%' lista.
 echo.
 
 REM =============================================
-REM  4. Instalar dependencias PHP
+REM  5. Instalar dependencias PHP
 REM =============================================
-echo [4/6] Instalando dependencias de PHP...
+echo [5/7] Instalando dependencias de PHP...
 call composer install --no-interaction --prefer-dist --optimize-autoloader
 if %errorlevel% neq 0 (
     echo ERROR: Fallo al instalar dependencias de PHP.
@@ -89,16 +97,16 @@ if %errorlevel% neq 0 (
 echo.
 
 REM =============================================
-REM  5. Generar clave de aplicacion
+REM  6. Generar clave de aplicacion
 REM =============================================
-echo [5/6] Generando clave de aplicacion...
+echo [6/7] Generando clave de aplicacion...
 php artisan key:generate --no-interaction
 echo.
 
 REM =============================================
-REM  6. Ejecutar migraciones y datos iniciales
+REM  7. Ejecutar migraciones y datos iniciales
 REM =============================================
-echo [6/6] Ejecutando migraciones y cargando datos (esto puede tomar unos segundos)...
+echo [7/7] Ejecutando migraciones y cargando datos (esto puede tomar unos segundos)...
 php artisan migrate --force --no-interaction
 if %errorlevel% neq 0 (
     echo ERROR: Fallo al ejecutar migraciones.
@@ -121,7 +129,6 @@ echo    INSTALACION COMPLETADA
 echo ============================================
 echo.
 echo    URL:   http://alimentor.local
-echo    API:   http://alimentor.local/api
 echo    Docs:  http://alimentor.local/docs/api
 echo.
 echo    Usuario: admin@alimentor.net.pe
