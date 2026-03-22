@@ -5,6 +5,7 @@ use App\Http\Controllers\FoodCategoryController;
 use App\Http\Controllers\FoodController;
 use App\Http\Controllers\FoodTableController;
 use App\Http\Controllers\FoodUnitController;
+use App\Http\Controllers\MealPlanController;
 use App\Http\Controllers\RecipeCategoryController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\RecipeItemController;
@@ -25,4 +26,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('recipe-categories', RecipeCategoryController::class);
     Route::apiResource('recipes', RecipeController::class);
     Route::apiResource('recipes.items', RecipeItemController::class)->shallow();
+
+    Route::apiResource('meal-plans', MealPlanController::class);
 });
