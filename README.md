@@ -1,58 +1,164 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Alimentor
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema de planificacion nutricional. Backend API construido con Laravel 13.
 
-## About Laravel
+## Requisitos
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Desarrollo (Linux/Mac)
+- PHP 8.4
+- Composer
+- Node.js 20+
+- MySQL 8.0
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Instalacion local con Laragon (Windows)
+- [Laragon Full](https://laragon.org/download/) (incluye PHP, Composer, MySQL y Git)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Instalacion local con Laragon
 
-## Learning Laravel
+### 1. Instalar Laragon
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Descargar e instalar [Laragon Full](https://laragon.org/download/index.html). Asegurate de que Laragon este iniciado con Apache/Nginx y MySQL activos.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 2. Clonar el repositorio
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Abrir una terminal dentro de Laragon (Menu > Terminal) y ejecutar:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+cd C:\laragon\www
+git clone <URL_DEL_REPOSITORIO> alimentor-laravel
+cd alimentor-laravel
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 3. Ejecutar el instalador
 
-## Contributing
+```bash
+install.bat
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Este script automaticamente:
+- Verifica que PHP, Composer y MySQL esten disponibles
+- Crea el archivo `.env` con la configuracion de Laragon
+- Crea la base de datos `alimentor_laravel`
+- Instala las dependencias de PHP
+- Genera la clave de la aplicacion
+- Ejecuta las migraciones de base de datos
+- Carga los datos iniciales (tablas de alimentos, categorias, etc.)
 
-## Code of Conduct
+### 4. Acceder al sistema
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Recurso | URL |
+|---------|-----|
+| Aplicacion | http://alimentor-laravel.test |
+| API | http://alimentor-laravel.test/api |
+| Documentacion API | http://alimentor-laravel.test/docs/api |
 
-## Security Vulnerabilities
+### Credenciales por defecto
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| Campo | Valor |
+|-------|-------|
+| Email | admin@alimentor.net.pe |
+| Clave | password |
 
-## License
+## Actualizacion
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Cuando haya una nueva version disponible:
+
+```bash
+cd C:\laragon\www\alimentor-laravel
+git pull
+update.bat
+```
+
+El script `update.bat` actualiza las dependencias, ejecuta migraciones nuevas y limpia la cache. El frontend se actualiza automaticamente con `git pull`.
+
+## Desarrollo
+
+### Configuracion
+
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan db:seed
+npm install
+```
+
+### Levantar el entorno de desarrollo
+
+```bash
+composer run dev
+```
+
+Esto inicia concurrentemente: servidor Laravel, queue listener, logs (Pail) y Vite.
+
+### Comandos utiles
+
+```bash
+# Ejecutar tests
+composer run test
+
+# Formatear codigo PHP
+vendor/bin/pint
+
+# Listar rutas de la API
+php artisan route:list
+
+# Ejecutar migraciones
+php artisan migrate
+
+# Rehacer base de datos con datos
+php artisan migrate:fresh --seed
+```
+
+## Estructura de la API
+
+### Autenticacion
+- `POST /api/login` - Iniciar sesion (devuelve token Sanctum)
+- `POST /api/logout` - Cerrar sesion
+- `GET /api/me` - Datos del usuario autenticado
+
+### Alimentos
+- `GET /api/foods` - Listar alimentos (paginado, filtros: search, food_table_id, food_category_id)
+- `GET /api/foods/search` - Buscar alimentos por nombre y tabla (para selects)
+- `GET /api/foods/{id}` - Detalle de un alimento con unidades
+- `POST /api/foods` - Crear alimento
+- `PUT /api/foods/{id}` - Actualizar alimento
+- `DELETE /api/foods/{id}` - Eliminar alimento
+
+### Unidades de alimento
+- `GET /api/foods/{food}/units` - Listar unidades de un alimento
+- `POST /api/foods/{food}/units` - Crear unidad
+- `PUT /api/units/{id}` - Actualizar unidad
+- `DELETE /api/units/{id}` - Eliminar unidad
+
+### Recetas
+- `GET /api/recipes` - Listar recetas (paginado)
+- `GET /api/recipes/search` - Buscar recetas por nombre (para selects)
+- `GET /api/recipes/{id}` - Detalle con ingredientes y nutrientes
+- `POST /api/recipes` - Crear receta con ingredientes
+- `PUT /api/recipes/{id}` - Actualizar receta
+- `DELETE /api/recipes/{id}` - Eliminar receta
+
+### Planificaciones
+- `GET /api/meal-plans` - Listar planificaciones
+- `POST /api/meal-plans` - Crear planificacion
+- `GET /api/meal-plans/{id}` - Detalle de planificacion
+- `PUT /api/meal-plans/{id}` - Actualizar planificacion
+- `DELETE /api/meal-plans/{id}` - Eliminar planificacion
+
+### Items de planificacion
+- `GET /api/meal-plans/{id}/meal-plan-items` - Listar items
+- `POST /api/meal-plans/{id}/meal-plan-items` - Agregar item (receta o alimento)
+- `GET /api/meal-plan-items/{id}` - Detalle de item
+- `PUT /api/meal-plan-items/{id}` - Actualizar item
+- `DELETE /api/meal-plan-items/{id}` - Eliminar item
+
+### Endpoints especiales
+- `GET /api/meal-plans/{id}/calendar?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD` - Vista calendario
+- `GET /api/meal-plans/{id}/daily?date=YYYY-MM-DD` - Vista diaria con nutrientes completos
+
+### Catalogos
+- `GET /api/food-categories` - Categorias de alimentos
+- `GET /api/food-tables` - Tablas de composicion de alimentos
+- `GET /api/recipe-categories` - Categorias de recetas
