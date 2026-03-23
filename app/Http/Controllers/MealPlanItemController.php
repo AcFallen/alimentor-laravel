@@ -15,6 +15,19 @@ use Illuminate\Support\Collection;
 
 class MealPlanItemController extends Controller
 {
+    /** @var array<int, string> */
+    private const array ITEM_RELATIONS = [
+        'recipe.category',
+        'recipe.items.food.category',
+        'recipe.items.food.table',
+        'recipe.items.food.units',
+        'recipe.items.foodUnit',
+        'food.category',
+        'food.table',
+        'food.units',
+        'foodUnit',
+    ];
+
     /**
      * Get meal plan calendar.
      *
@@ -79,7 +92,7 @@ class MealPlanItemController extends Controller
     public function daily(DailyMealPlanRequest $request, MealPlan $mealPlan): JsonResponse
     {
         $items = $mealPlan->items()
-            ->with(['recipe.items.food', 'recipe.items.foodUnit', 'food', 'foodUnit'])
+            ->with(self::ITEM_RELATIONS)
             ->where('date', $request->validated('date'))
             ->orderBy('meal_type')
             ->orderBy('sort_order')
@@ -97,7 +110,7 @@ class MealPlanItemController extends Controller
     public function index(MealPlan $mealPlan): AnonymousResourceCollection
     {
         $items = $mealPlan->items()
-            ->with(['recipe.items.food', 'recipe.items.foodUnit', 'food', 'foodUnit'])
+            ->with(self::ITEM_RELATIONS)
             ->orderBy('date')
             ->orderBy('meal_type')
             ->orderBy('sort_order')
@@ -110,14 +123,14 @@ class MealPlanItemController extends Controller
     {
         $item = $mealPlan->items()->create($request->validated());
 
-        $item->load(['recipe', 'food', 'foodUnit']);
+        $item->load(self::ITEM_RELATIONS);
 
         return response()->json(new MealPlanItemResource($item), 201);
     }
 
     public function show(MealPlanItem $mealPlanItem): MealPlanItemResource
     {
-        $mealPlanItem->load(['recipe', 'food', 'foodUnit']);
+        $mealPlanItem->load(self::ITEM_RELATIONS);
 
         return new MealPlanItemResource($mealPlanItem);
     }
@@ -126,7 +139,7 @@ class MealPlanItemController extends Controller
     {
         $mealPlanItem->update($request->validated());
 
-        $mealPlanItem->load(['recipe', 'food', 'foodUnit']);
+        $mealPlanItem->load(self::ITEM_RELATIONS);
 
         return new MealPlanItemResource($mealPlanItem);
     }
