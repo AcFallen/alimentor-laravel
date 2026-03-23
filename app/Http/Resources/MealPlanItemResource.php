@@ -16,6 +16,7 @@ class MealPlanItemResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'option_group' => $this->option_group,
             'quantity' => $this->quantity,
             'diners' => $this->diners,
             'sort_order' => $this->sort_order,

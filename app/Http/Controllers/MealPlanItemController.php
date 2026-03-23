@@ -55,6 +55,7 @@ class MealPlanItemController extends Controller
                         'id' => $item->id,
                         'name' => $item->recipe?->name ?? $item->food?->name,
                         'type' => $item->recipe_id ? 'recipe' : 'food',
+                        'option_group' => $item->option_group,
                         'diners' => $item->diners,
                     ]),
                 ])

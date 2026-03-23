@@ -24,6 +24,7 @@ class MealPlanItemFactory extends Factory
 
         return [
             'meal_plan_slot_id' => MealPlanSlot::factory(),
+            'option_group' => null,
             'recipe_id' => null,
             'food_id' => $food->id,
             'food_unit_id' => $foodUnit->id,

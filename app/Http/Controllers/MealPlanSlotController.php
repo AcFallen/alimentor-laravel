@@ -13,25 +13,24 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MealPlanSlotController extends Controller
 {
-    /** @var array<int, string> */
-    private const array ITEM_RELATIONS = [
-        'items.recipe.category',
-        'items.recipe.items.food.category',
-        'items.recipe.items.food.table',
-        'items.recipe.items.food.units',
-        'items.recipe.items.foodUnit',
-        'items.food.category',
-        'items.food.table',
-        'items.food.units',
-        'items.foodUnit',
-    ];
-
+    /**
+     * List meal plan slots.
+     *
+     * Returns slots for a meal plan, optionally filtered by date or date range.
+     *
+     * @response array{data: array{id: int, date: string, meal_type: string, diners: int, created_at: string, updated_at: string}[]}
+     */
     public function index(Request $request, MealPlan $mealPlan): AnonymousResourceCollection
     {
         $slots = $mealPlan->slots()
-            ->with(self::ITEM_RELATIONS)
-            ->when($request->query('start_date'), function ($query, string $startDate) use ($request) {
-                $query->whereBetween('date', [$startDate, $request->query('end_date', $startDate)]);
+            ->when($request->query('date'), function ($query, string $date) {
+                $query->where('date', $date);
+            })
+            ->when(! $request->query('date') && $request->query('start_date'), function ($query) use ($request) {
+                $query->whereBetween('date', [
+                    $request->query('start_date'),
+                    $request->query('end_date', $request->query('start_date')),
+                ]);
             })
             ->orderBy('date')
             ->orderBy('meal_type')
@@ -40,6 +39,11 @@ class MealPlanSlotController extends Controller
         return MealPlanSlotResource::collection($slots);
     }
 
+    /**
+     * Create a meal plan slot.
+     *
+     * @response 201 array{id: int, date: string, meal_type: string, diners: int, created_at: string, updated_at: string}
+     */
     public function store(StoreMealPlanSlotRequest $request, MealPlan $mealPlan): JsonResponse
     {
         $slot = $mealPlan->slots()->create($request->validated());
@@ -47,22 +51,33 @@ class MealPlanSlotController extends Controller
         return response()->json(new MealPlanSlotResource($slot), 201);
     }
 
+    /**
+     * Show a meal plan slot.
+     *
+     * @response array{id: int, date: string, meal_type: string, diners: int, created_at: string, updated_at: string}
+     */
     public function show(MealPlanSlot $mealPlanSlot): MealPlanSlotResource
     {
-        $mealPlanSlot->load(self::ITEM_RELATIONS);
-
         return new MealPlanSlotResource($mealPlanSlot);
     }
 
+    /**
+     * Update a meal plan slot.
+     *
+     * @response array{id: int, date: string, meal_type: string, diners: int, created_at: string, updated_at: string}
+     */
     public function update(UpdateMealPlanSlotRequest $request, MealPlanSlot $mealPlanSlot): MealPlanSlotResource
     {
         $mealPlanSlot->update($request->validated());
 
-        $mealPlanSlot->load(self::ITEM_RELATIONS);
-
         return new MealPlanSlotResource($mealPlanSlot);
     }
 
+    /**
+     * Delete a meal plan slot.
+     *
+     * @response 204
+     */
     public function destroy(MealPlanSlot $mealPlanSlot): JsonResponse
     {
         $mealPlanSlot->delete();

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'meal_plan_slot_id',
+    'option_group',
     'recipe_id',
     'food_id',
     'food_unit_id',

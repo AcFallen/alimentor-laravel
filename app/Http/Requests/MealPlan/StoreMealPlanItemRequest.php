@@ -19,6 +19,7 @@ class StoreMealPlanItemRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'option_group' => ['nullable', 'string', 'max:50'],
             'recipe_id' => ['nullable', 'integer', 'exists:recipes,id', 'required_without:food_id', 'missing_with:food_id'],
             'food_id' => ['nullable', 'integer', 'exists:foods,id', 'required_without:recipe_id', 'missing_with:recipe_id'],
             'food_unit_id' => ['nullable', 'integer', 'exists:food_units,id', 'required_with:food_id'],
@@ -35,15 +36,23 @@ class StoreMealPlanItemRequest extends FormRequest
     {
         return [
             function (Validator $validator): void {
+                $optionGroup = $this->input('option_group');
+
+                if ($optionGroup === null) {
+                    return;
+                }
+
                 $slot = $this->route('meal_plan_slot');
                 $requestedDiners = $this->integer('diners', 1);
 
-                $existingSum = $slot->items()->sum('diners');
+                $existingSum = $slot->items()
+                    ->where('option_group', $optionGroup)
+                    ->sum('diners');
 
                 if (($existingSum + $requestedDiners) > $slot->diners) {
                     $validator->errors()->add(
                         'diners',
-                        "La suma de comensales de las opciones ({$existingSum} + {$requestedDiners}) excede el total del turno ({$slot->diners})."
+                        "La suma de comensales del grupo '{$optionGroup}' ({$existingSum} + {$requestedDiners}) excede el total del turno ({$slot->diners})."
                     );
                 }
             },

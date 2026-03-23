@@ -19,6 +19,7 @@ class UpdateMealPlanItemRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'option_group' => ['nullable', 'string', 'max:50'],
             'recipe_id' => ['nullable', 'integer', 'exists:recipes,id', 'missing_with:food_id'],
             'food_id' => ['nullable', 'integer', 'exists:foods,id', 'missing_with:recipe_id'],
             'food_unit_id' => ['nullable', 'integer', 'exists:food_units,id', 'required_with:food_id'],
@@ -35,22 +36,29 @@ class UpdateMealPlanItemRequest extends FormRequest
     {
         return [
             function (Validator $validator): void {
-                if (! $this->has('diners')) {
+                $item = $this->route('meal_plan_item');
+                $optionGroup = $this->input('option_group', $item->option_group);
+
+                if ($optionGroup === null) {
                     return;
                 }
 
-                $item = $this->route('meal_plan_item');
+                if (! $this->has('diners') && ! $this->has('option_group')) {
+                    return;
+                }
+
                 $slot = $item->slot;
-                $requestedDiners = $this->integer('diners', 1);
+                $requestedDiners = $this->integer('diners', $item->diners);
 
                 $existingSum = $slot->items()
                     ->where('id', '!=', $item->id)
+                    ->where('option_group', $optionGroup)
                     ->sum('diners');
 
                 if (($existingSum + $requestedDiners) > $slot->diners) {
                     $validator->errors()->add(
                         'diners',
-                        "La suma de comensales de las opciones ({$existingSum} + {$requestedDiners}) excede el total del turno ({$slot->diners})."
+                        "La suma de comensales del grupo '{$optionGroup}' ({$existingSum} + {$requestedDiners}) excede el total del turno ({$slot->diners})."
                     );
                 }
             },
