@@ -19,6 +19,7 @@ class SearchRecipeRequest extends FormRequest
     {
         return [
             'search' => ['required', 'string', 'min:2', 'max:255'],
+            'food_table_id' => ['sometimes', 'integer', 'exists:food_tables,id'],
         ];
     }
 }

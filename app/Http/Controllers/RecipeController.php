@@ -19,17 +19,17 @@ class RecipeController extends Controller
         $recipes = Recipe::query()
             ->with(['category', 'items.food', 'items.foodUnit'])
             ->where('name', 'like', '%'.$request->validated('search').'%')
+            ->when($request->validated('food_table_id'), function ($query, int $foodTableId) {
+                $query->whereHas('items.food', function ($query) use ($foodTableId) {
+                    $query->where('food_table_id', $foodTableId);
+                });
+            })
             ->limit(20)
             ->get();
 
         return RecipeResource::collection($recipes);
     }
 
-    /**
-     * List recipes.
-     *
-     * Returns a paginated list of recipes, optionally filtered by name, category, or food table.
-     */
     public function index(Request $request): AnonymousResourceCollection
     {
         $recipes = Recipe::query()
@@ -39,11 +39,6 @@ class RecipeController extends Controller
             })
             ->when($request->query('recipe_category_id'), function ($query, string $categoryId) {
                 $query->where('recipe_category_id', $categoryId);
-            })
-            ->when($request->query('food_table_id'), function ($query, string $foodTableId) {
-                $query->whereHas('items.food', function ($query) use ($foodTableId) {
-                    $query->where('food_table_id', $foodTableId);
-                });
             })
             ->paginate($request->integer('per_page', 15));
 
