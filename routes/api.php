@@ -33,6 +33,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('meal-plans', MealPlanController::class);
     Route::get('meal-plans/{meal_plan}/calendar', [MealPlanItemController::class, 'calendar'])->name('meal-plans.calendar');
     Route::get('meal-plans/{meal_plan}/daily', [MealPlanItemController::class, 'daily'])->name('meal-plans.daily');
+    Route::post('meal-plans/{meal_plan}/copy-day', [MealPlanSlotController::class, 'copyDay'])->name('meal-plans.copy-day');
+    Route::post('meal-plans/{meal_plan}/copy-range', [MealPlanSlotController::class, 'copyRange'])->name('meal-plans.copy-range');
+    Route::delete('meal-plans/{meal_plan}/clear-day', [MealPlanSlotController::class, 'clearDay'])->name('meal-plans.clear-day');
     Route::apiResource('meal-plans.meal-plan-slots', MealPlanSlotController::class)->shallow();
     Route::apiResource('meal-plan-slots.meal-plan-items', MealPlanItemController::class)->shallow();
 });
