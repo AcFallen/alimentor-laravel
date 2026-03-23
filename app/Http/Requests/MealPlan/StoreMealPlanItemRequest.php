@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests\MealPlan;
 
-use App\Enums\MealType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreMealPlanItemRequest extends FormRequest
 {
@@ -20,13 +19,34 @@ class StoreMealPlanItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'date' => ['required', 'date_format:Y-m-d'],
-            'meal_type' => ['required', 'string', Rule::enum(MealType::class)],
             'recipe_id' => ['nullable', 'integer', 'exists:recipes,id', 'required_without:food_id', 'missing_with:food_id'],
             'food_id' => ['nullable', 'integer', 'exists:foods,id', 'required_without:recipe_id', 'missing_with:recipe_id'],
             'food_unit_id' => ['nullable', 'integer', 'exists:food_units,id', 'required_with:food_id'],
             'quantity' => ['nullable', 'numeric', 'min:0.01', 'required_with:food_id'],
+            'diners' => ['sometimes', 'integer', 'min:1'],
             'sort_order' => ['sometimes', 'integer', 'min:0'],
+        ];
+    }
+
+    /**
+     * @return array<int, callable>
+     */
+    public function after(): array
+    {
+        return [
+            function (Validator $validator): void {
+                $slot = $this->route('meal_plan_slot');
+                $requestedDiners = $this->integer('diners', 1);
+
+                $existingSum = $slot->items()->sum('diners');
+
+                if (($existingSum + $requestedDiners) > $slot->diners) {
+                    $validator->errors()->add(
+                        'diners',
+                        "La suma de comensales de las opciones ({$existingSum} + {$requestedDiners}) excede el total del turno ({$slot->diners})."
+                    );
+                }
+            },
         ];
     }
 

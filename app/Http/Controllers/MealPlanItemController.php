@@ -7,8 +7,10 @@ use App\Http\Requests\MealPlan\DailyMealPlanRequest;
 use App\Http\Requests\MealPlan\StoreMealPlanItemRequest;
 use App\Http\Requests\MealPlan\UpdateMealPlanItemRequest;
 use App\Http\Resources\MealPlanItemResource;
+use App\Http\Resources\MealPlanSlotResource;
 use App\Models\MealPlan;
 use App\Models\MealPlanItem;
+use App\Models\MealPlanSlot;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Collection;
@@ -31,39 +33,31 @@ class MealPlanItemController extends Controller
     /**
      * Get meal plan calendar.
      *
-     * Returns all meal plan items for a date range, grouped by date and meal type.
-     *
-     * @response array{
-     *     start_date: string,
-     *     end_date: string,
-     *     days: array<string, array{
-     *         breakfast?: MealPlanItemResource[],
-     *         morning_snack?: MealPlanItemResource[],
-     *         lunch?: MealPlanItemResource[],
-     *         afternoon_snack?: MealPlanItemResource[],
-     *         dinner?: MealPlanItemResource[],
-     *     }>
-     * }
+     * Returns all meal plan slots for a date range, grouped by date and meal type.
      */
     public function calendar(CalendarMealPlanRequest $request, MealPlan $mealPlan): JsonResponse
     {
-        $items = $mealPlan->items()
-            ->with(['recipe:id,name', 'food:id,name'])
+        $slots = $mealPlan->slots()
+            ->with(['items' => fn ($q) => $q->with(['recipe:id,name', 'food:id,name'])->orderBy('sort_order')])
             ->whereBetween('date', [$request->validated('start_date'), $request->validated('end_date')])
             ->orderBy('date')
             ->orderBy('meal_type')
-            ->orderBy('sort_order')
             ->get();
 
-        $days = $items
-            ->groupBy(fn (MealPlanItem $item) => $item->date->toDateString())
-            ->map(fn (Collection $dayItems) => $dayItems
-                ->groupBy(fn (MealPlanItem $item) => $item->meal_type->value)
-                ->map(fn (Collection $mealItems) => $mealItems->map(fn (MealPlanItem $item) => [
-                    'id' => $item->id,
-                    'name' => $item->recipe?->name ?? $item->food?->name,
-                    'type' => $item->recipe_id ? 'recipe' : 'food',
-                ]))
+        $days = $slots
+            ->groupBy(fn (MealPlanSlot $slot) => $slot->date->toDateString())
+            ->map(fn (Collection $daySlots) => $daySlots
+                ->keyBy(fn (MealPlanSlot $slot) => $slot->meal_type->value)
+                ->map(fn (MealPlanSlot $slot) => [
+                    'id' => $slot->id,
+                    'diners' => $slot->diners,
+                    'items' => $slot->items->map(fn (MealPlanItem $item) => [
+                        'id' => $item->id,
+                        'name' => $item->recipe?->name ?? $item->food?->name,
+                        'type' => $item->recipe_id ? 'recipe' : 'food',
+                        'diners' => $item->diners,
+                    ]),
+                ])
             );
 
         return response()->json([
@@ -76,52 +70,39 @@ class MealPlanItemController extends Controller
     /**
      * Get daily meal plan.
      *
-     * Returns all meal plan items for a specific date, grouped by meal type.
-     *
-     * @response array{
-     *     date: string,
-     *     meals: array{
-     *         breakfast?: MealPlanItemResource[],
-     *         morning_snack?: MealPlanItemResource[],
-     *         lunch?: MealPlanItemResource[],
-     *         afternoon_snack?: MealPlanItemResource[],
-     *         dinner?: MealPlanItemResource[],
-     *     }
-     * }
+     * Returns all meal plan slots for a specific date, with full item details.
      */
     public function daily(DailyMealPlanRequest $request, MealPlan $mealPlan): JsonResponse
     {
-        $items = $mealPlan->items()
-            ->with(self::ITEM_RELATIONS)
+        $slots = $mealPlan->slots()
+            ->with(['items' => fn ($q) => $q->with(self::ITEM_RELATIONS)->orderBy('sort_order')])
             ->where('date', $request->validated('date'))
             ->orderBy('meal_type')
-            ->orderBy('sort_order')
             ->get();
 
-        $grouped = $items->groupBy(fn (MealPlanItem $item) => $item->meal_type->value)
-            ->map(fn (Collection $items) => MealPlanItemResource::collection($items));
+        $meals = $slots
+            ->keyBy(fn (MealPlanSlot $slot) => $slot->meal_type->value)
+            ->map(fn (MealPlanSlot $slot) => new MealPlanSlotResource($slot));
 
         return response()->json([
             'date' => $request->validated('date'),
-            'meals' => $grouped,
+            'meals' => $meals,
         ]);
     }
 
-    public function index(MealPlan $mealPlan): AnonymousResourceCollection
+    public function index(MealPlanSlot $mealPlanSlot): AnonymousResourceCollection
     {
-        $items = $mealPlan->items()
+        $items = $mealPlanSlot->items()
             ->with(self::ITEM_RELATIONS)
-            ->orderBy('date')
-            ->orderBy('meal_type')
             ->orderBy('sort_order')
             ->get();
 
         return MealPlanItemResource::collection($items);
     }
 
-    public function store(StoreMealPlanItemRequest $request, MealPlan $mealPlan): JsonResponse
+    public function store(StoreMealPlanItemRequest $request, MealPlanSlot $mealPlanSlot): JsonResponse
     {
-        $item = $mealPlan->items()->create($request->validated());
+        $item = $mealPlanSlot->items()->create($request->validated());
 
         $item->load(self::ITEM_RELATIONS);
 

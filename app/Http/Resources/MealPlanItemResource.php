@@ -16,13 +16,13 @@ class MealPlanItemResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'date' => $this->date->toDateString(),
-            'meal_type' => $this->meal_type,
             'quantity' => $this->quantity,
+            'diners' => $this->diners,
             'sort_order' => $this->sort_order,
             'recipe' => new RecipeResource($this->whenLoaded('recipe')),
             'food' => new FoodResource($this->whenLoaded('food')),
             'food_unit' => new FoodUnitResource($this->whenLoaded('foodUnit')),
+            'slot' => new MealPlanSlotResource($this->whenLoaded('slot')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

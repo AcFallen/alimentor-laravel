@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\MealType;
 use Database\Factories\MealPlanItemFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,13 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
-    'meal_plan_id',
-    'date',
-    'meal_type',
+    'meal_plan_slot_id',
     'recipe_id',
     'food_id',
     'food_unit_id',
     'quantity',
+    'diners',
     'sort_order',
 ])]
 class MealPlanItem extends Model
@@ -25,22 +23,11 @@ class MealPlanItem extends Model
     use HasFactory;
 
     /**
-     * @return array<string, string>
+     * @return BelongsTo<MealPlanSlot, $this>
      */
-    protected function casts(): array
+    public function slot(): BelongsTo
     {
-        return [
-            'date' => 'date',
-            'meal_type' => MealType::class,
-        ];
-    }
-
-    /**
-     * @return BelongsTo<MealPlan, $this>
-     */
-    public function mealPlan(): BelongsTo
-    {
-        return $this->belongsTo(MealPlan::class);
+        return $this->belongsTo(MealPlanSlot::class, 'meal_plan_slot_id');
     }
 
     /**

@@ -7,6 +7,7 @@ use App\Http\Controllers\FoodTableController;
 use App\Http\Controllers\FoodUnitController;
 use App\Http\Controllers\MealPlanController;
 use App\Http\Controllers\MealPlanItemController;
+use App\Http\Controllers\MealPlanSlotController;
 use App\Http\Controllers\RecipeCategoryController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\RecipeItemController;
@@ -32,5 +33,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('meal-plans', MealPlanController::class);
     Route::get('meal-plans/{meal_plan}/calendar', [MealPlanItemController::class, 'calendar'])->name('meal-plans.calendar');
     Route::get('meal-plans/{meal_plan}/daily', [MealPlanItemController::class, 'daily'])->name('meal-plans.daily');
-    Route::apiResource('meal-plans.meal-plan-items', MealPlanItemController::class)->shallow();
+    Route::apiResource('meal-plans.meal-plan-slots', MealPlanSlotController::class)->shallow();
+    Route::apiResource('meal-plan-slots.meal-plan-items', MealPlanItemController::class)->shallow();
 });

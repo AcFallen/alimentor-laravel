@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
@@ -55,10 +56,18 @@ class MealPlan extends Model
     }
 
     /**
-     * @return HasMany<MealPlanItem, $this>
+     * @return HasMany<MealPlanSlot, $this>
      */
-    public function items(): HasMany
+    public function slots(): HasMany
     {
-        return $this->hasMany(MealPlanItem::class);
+        return $this->hasMany(MealPlanSlot::class);
+    }
+
+    /**
+     * @return HasManyThrough<MealPlanItem, MealPlanSlot, $this>
+     */
+    public function items(): HasManyThrough
+    {
+        return $this->hasManyThrough(MealPlanItem::class, MealPlanSlot::class);
     }
 }
