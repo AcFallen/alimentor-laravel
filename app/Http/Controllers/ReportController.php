@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Exports\KitchenOrderExport;
 use App\Exports\MacronutrientReportExport;
+use App\Exports\MicronutrientReportExport;
 use App\Exports\NutritionalReportExport;
 use App\Exports\StandardizedRecipeExport;
 use App\Exports\WeeklyRequirementExport;
 use App\Http\Requests\Report\KitchenOrderReportRequest;
 use App\Http\Requests\Report\MacronutrientReportRequest;
+use App\Http\Requests\Report\MicronutrientReportRequest;
 use App\Http\Requests\Report\NutritionalReportRequest;
 use App\Http\Requests\Report\StandardizedRecipeReportRequest;
 use App\Http\Requests\Report\WeeklyRequirementReportRequest;
@@ -67,6 +69,18 @@ class ReportController extends Controller
             mealPlan: $mealPlan,
             startDate: $request->validated('start_date'),
             endDate: $request->validated('end_date'),
+        );
+
+        return $this->downloadExport($export->generate());
+    }
+
+    public function micronutrient(MicronutrientReportRequest $request, MealPlan $mealPlan): BinaryFileResponse
+    {
+        $export = new MicronutrientReportExport(
+            mealPlan: $mealPlan,
+            startDate: $request->validated('start_date'),
+            endDate: $request->validated('end_date'),
+            nutrientKeys: $request->validated('nutrient_keys'),
         );
 
         return $this->downloadExport($export->generate());
