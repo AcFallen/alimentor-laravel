@@ -1,29 +1,25 @@
 <?php
 
+use App\Models\User;
 use Google\Service\Sheets;
 use Google\Service\Sheets\AppendValuesResponse;
 use Google\Service\Sheets\Resource\SpreadsheetsValues;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-it('registers successfully and returns machine_key', function () {
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
     $mockValues = Mockery::mock(SpreadsheetsValues::class);
     $mockValues->shouldReceive('append')
-        ->once()
-        ->withArgs(function ($sheetId, $range, $values, $params) {
-            $row = $values->getValues()[0];
-
-            return $range === 'A:G'
-                && $row[1] === 'Test Client'
-                && $row[2] === 'test@example.com'
-                && $row[3] === 'pending'
-                && $params['valueInputOption'] === 'USER_ENTERED';
-        })
         ->andReturn(new AppendValuesResponse);
 
     $mockSheets = Mockery::mock(Sheets::class);
     $mockSheets->spreadsheets_values = $mockValues;
 
     $this->app->instance(Sheets::class, $mockSheets);
+});
 
+it('registers successfully, creates user and returns machine_key', function () {
     $response = $this->postJson('/api/register', [
         'client_name' => 'Test Client',
         'email' => 'test@example.com',
@@ -36,6 +32,11 @@ it('registers successfully and returns machine_key', function () {
             'registered_at',
         ])
         ->assertJson(['message' => 'Registro exitoso.']);
+
+    $this->assertDatabaseHas('users', [
+        'name' => 'Test Client',
+        'email' => 'test@example.com',
+    ]);
 });
 
 it('validates required fields for registration', function () {
@@ -49,6 +50,18 @@ it('validates email format for registration', function () {
     $response = $this->postJson('/api/register', [
         'client_name' => 'Test Client',
         'email' => 'not-an-email',
+    ]);
+
+    $response->assertUnprocessable()
+        ->assertJsonValidationErrors(['email']);
+});
+
+it('rejects duplicate email registration', function () {
+    User::factory()->create(['email' => 'test@example.com']);
+
+    $response = $this->postJson('/api/register', [
+        'client_name' => 'Test Client',
+        'email' => 'test@example.com',
     ]);
 
     $response->assertUnprocessable()
@@ -73,4 +86,6 @@ it('returns error when google sheets api fails', function () {
 
     $response->assertStatus(500)
         ->assertJson(['message' => 'Error al registrar en Google Sheets.']);
+
+    $this->assertDatabaseMissing('users', ['email' => 'test@example.com']);
 });

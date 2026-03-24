@@ -9,6 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('meal_plan_items', function (Blueprint $table) {
+            $table->dropIndex(['meal_plan_id', 'day_number', 'meal_type']);
+        });
+
+        Schema::table('meal_plan_items', function (Blueprint $table) {
             $table->dropColumn('day_number');
             $table->date('date')->after('meal_plan_id');
         });

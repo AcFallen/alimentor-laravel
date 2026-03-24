@@ -50,13 +50,14 @@ return new class extends Migration
         });
 
         // Populate meal_plan_slot_id from matching slots
-        DB::table('meal_plan_items as i')
-            ->join('meal_plan_slots as s', function ($join) {
-                $join->on('i.meal_plan_id', '=', 's.meal_plan_id')
-                    ->on('i.date', '=', 's.date')
-                    ->on('i.meal_type', '=', 's.meal_type');
-            })
-            ->update(['i.meal_plan_slot_id' => DB::raw('s.id')]);
+        DB::table('meal_plan_items')->update([
+            'meal_plan_slot_id' => DB::raw('(
+                SELECT s.id FROM meal_plan_slots s
+                WHERE s.meal_plan_id = meal_plan_items.meal_plan_id
+                AND s.date = meal_plan_items.date
+                AND s.meal_type = meal_plan_items.meal_type
+            )'),
+        ]);
 
         // Make meal_plan_slot_id non-nullable now that it's populated
         Schema::table('meal_plan_items', function (Blueprint $table) {
@@ -96,13 +97,11 @@ return new class extends Migration
         });
 
         // Restore data from slots
-        DB::table('meal_plan_items as i')
-            ->join('meal_plan_slots as s', 'i.meal_plan_slot_id', '=', 's.id')
-            ->update([
-                'i.meal_plan_id' => DB::raw('s.meal_plan_id'),
-                'i.date' => DB::raw('s.date'),
-                'i.meal_type' => DB::raw('s.meal_type'),
-            ]);
+        DB::table('meal_plan_items')->update([
+            'meal_plan_id' => DB::raw('(SELECT s.meal_plan_id FROM meal_plan_slots s WHERE s.id = meal_plan_items.meal_plan_slot_id)'),
+            'date' => DB::raw('(SELECT s.date FROM meal_plan_slots s WHERE s.id = meal_plan_items.meal_plan_slot_id)'),
+            'meal_type' => DB::raw('(SELECT s.meal_type FROM meal_plan_slots s WHERE s.id = meal_plan_items.meal_plan_slot_id)'),
+        ]);
 
         Schema::table('meal_plan_items', function (Blueprint $table) {
             $table->foreignId('meal_plan_id')->nullable(false)->change();

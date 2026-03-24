@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Registration\RegisterRequest;
+use App\Models\User;
 use Google\Service\Sheets;
 use Google\Service\Sheets\ValueRange;
 use Illuminate\Http\JsonResponse;
@@ -42,6 +43,12 @@ class RegistrationController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+
+        User::query()->create([
+            'name' => $request->validated('client_name'),
+            'email' => $request->validated('email'),
+            'password' => $machineKey,
+        ]);
 
         return response()->json([
             'message' => 'Registro exitoso.',
