@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Exports\KitchenOrderExport;
+use App\Exports\MacronutrientReportExport;
 use App\Exports\NutritionalReportExport;
 use App\Exports\StandardizedRecipeExport;
 use App\Exports\WeeklyRequirementExport;
 use App\Http\Requests\Report\KitchenOrderReportRequest;
+use App\Http\Requests\Report\MacronutrientReportRequest;
 use App\Http\Requests\Report\NutritionalReportRequest;
 use App\Http\Requests\Report\StandardizedRecipeReportRequest;
 use App\Http\Requests\Report\WeeklyRequirementReportRequest;
@@ -51,6 +53,17 @@ class ReportController extends Controller
     public function nutritional(NutritionalReportRequest $request, MealPlan $mealPlan): BinaryFileResponse
     {
         $export = new NutritionalReportExport(
+            mealPlan: $mealPlan,
+            startDate: $request->validated('start_date'),
+            endDate: $request->validated('end_date'),
+        );
+
+        return $this->downloadExport($export->generate());
+    }
+
+    public function macronutrient(MacronutrientReportRequest $request, MealPlan $mealPlan): BinaryFileResponse
+    {
+        $export = new MacronutrientReportExport(
             mealPlan: $mealPlan,
             startDate: $request->validated('start_date'),
             endDate: $request->validated('end_date'),
