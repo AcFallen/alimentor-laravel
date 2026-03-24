@@ -46,4 +46,6 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('meal-plans.reports.weekly-requirement');
     Route::get('meal-plans/{meal_plan}/reports/kitchen-order', [ReportController::class, 'kitchenOrder'])
         ->name('meal-plans.reports.kitchen-order');
+    Route::get('meal-plans/{meal_plan}/reports/nutritional', [ReportController::class, 'nutritional'])
+        ->name('meal-plans.reports.nutritional');
 });
