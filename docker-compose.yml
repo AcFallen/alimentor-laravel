@@ -18,5 +18,24 @@ services:
       timeout: 5s
       retries: 5
 
+  pgsql:
+    image: postgres:14
+    container_name: alimentor_pgsql
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: alimentor_backup
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - pgsql_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d alimentor_backup"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   mysql_data:
+  pgsql_data:
