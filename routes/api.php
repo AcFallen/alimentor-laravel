@@ -11,6 +11,7 @@ use App\Http\Controllers\MealPlanSlotController;
 use App\Http\Controllers\RecipeCategoryController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\RecipeItemController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
@@ -38,4 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('meal-plans/{meal_plan}/clear-day', [MealPlanSlotController::class, 'clearDay'])->name('meal-plans.clear-day');
     Route::apiResource('meal-plans.meal-plan-slots', MealPlanSlotController::class)->shallow();
     Route::apiResource('meal-plan-slots.meal-plan-items', MealPlanItemController::class)->shallow();
+
+    Route::get('meal-plans/{meal_plan}/reports/standardized-recipe', [ReportController::class, 'standardizedRecipe'])
+        ->name('meal-plans.reports.standardized-recipe');
 });

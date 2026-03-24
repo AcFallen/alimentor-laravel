@@ -13,7 +13,8 @@
         "dedoc/scramble": "^0.13.16",
         "laravel/framework": "^13.0",
         "laravel/sanctum": "^4.0",
-        "laravel/tinker": "^3.0"
+        "laravel/tinker": "^3.0",
+        "phpoffice/phpspreadsheet": "^5.5"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
