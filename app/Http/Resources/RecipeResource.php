@@ -20,6 +20,10 @@ class RecipeResource extends JsonResource
             'preparation' => $this->preparation,
             'category' => new RecipeCategoryResource($this->whenLoaded('category')),
             'items' => RecipeItemResource::collection($this->whenLoaded('items')),
+            'nutritional_summary' => $this->when(
+                $this->relationLoaded('items') && $this->items->every(fn ($item) => $item->relationLoaded('food')),
+                fn () => $this->getNutritionalSummary()
+            ),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

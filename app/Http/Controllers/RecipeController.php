@@ -33,7 +33,7 @@ class RecipeController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $recipes = Recipe::query()
-            ->with(['category'])
+            ->with(['category', 'items.food', 'items.foodUnit'])
             ->when($request->query('search'), function ($query, string $search) {
                 $query->where('name', 'like', "%{$search}%");
             })
