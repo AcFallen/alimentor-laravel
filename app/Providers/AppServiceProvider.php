@@ -15,7 +15,13 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(Sheets::class, function () {
             $client = new GoogleClient;
-            $client->setAuthConfig(config('google_sheets.credentials_path'));
+            $client->setAuthConfig([
+                'type' => 'service_account',
+                'client_id' => '',
+                'client_email' => config('google_sheets.service_account_email'),
+                'private_key' => config('google_sheets.service_account_private_key'),
+                'token_uri' => 'https://oauth2.googleapis.com/token',
+            ]);
             $client->addScope(Sheets::SPREADSHEETS);
 
             return new Sheets($client);

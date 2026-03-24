@@ -2,5 +2,6 @@
 
 return [
     'sheet_id' => env('GOOGLE_SHEETS_SHEET_ID'),
-    'credentials_path' => storage_path('app/google-credentials.json'),
+    'service_account_email' => env('GOOGLE_SERVICE_ACCOUNT_EMAIL'),
+    'service_account_private_key' => env('GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY'),
 ];

@@ -61,7 +61,13 @@ REM  3. Configurar .env
 REM =============================================
 echo [3/7] Configurando archivo .env...
 copy .env.example .env >nul
-echo    .env creado desde .env.example
+
+REM Configurar credenciales de Google Sheets
+>>".env" echo GOOGLE_SHEETS_SHEET_ID=1Ubu_bgC1ObfHcbowDKkgDEHvZWq5wBVZzSZFmPL2-oY
+>>".env" echo GOOGLE_SERVICE_ACCOUNT_EMAIL=alimentor-local-licencias@alimentor.iam.gserviceaccount.com
+>>".env" echo GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDPmkGGrZcKbeyh\nPi8S5pcFcgExG2SBqKp6eWbJlMRDzW5UvDOp1am+/4mQA961UzlASaFLMjOVZV1Y\n/8Ql6NGJKOF8cowBCMWKGx35q9AJXYBw1se2JKQ6vEh6M4WoruruJA8+ROwLus0V\nkHCZVh9/QNVzJ1pAZya9yVDqwhtAEstbR9XmQxMwmCtA/w+8uYf6FiaMtK6Z2wE2\n0e3bWk2/z/ev3Qz6k/SZed5PKxLF5QR5JQoY1cAlZVoPhb/kNxDBf/cEP5doJJNg\nu7q718q6S/fWd18n6uXsjXz7LNgIDLxEid/lhRGjqnbZ5kCSLopjrGRNmDxmDZJQ\nObhV7JNnAgMBAAECggEANcjeHxlMH1yZSLEGmxv4lmWR33ocUOc0u6RGOAV9z58i\nbXuQ2vhLEPu9VP1brpiQJZKt4gBwksz/ITaqR7QIzUM1H/vBP+dY3k3mNzAHJtX9\nl75dYVge4ES1dktw3mHq5aWb+WL70JIl3edc9Kz2Xg6a/kl8vWC8DcFhYGDHlJKS\nHGIKayjZKnI16uM07iJHRGI0DloLS99IQxhwN9VRKFkyJ3UnjMmR+Q2ZDSjGTB5v\nYcPYlxT3NH8w/WUZfvHv07o+9gmqjdtOOJvBzhU2wHWxbbPr3kipu3Omhz4/2zxw\nBiqMUqtQ+gpBnBZt8i/o4x4ivuyqNjmFePruMmHxKQKBgQD5yiFT9T0yCC0FIV1H\nphzSd3vNBK2R7GZwcIBWkls/MIJ9b8/bxais4PmGJAK2EUrY16W0bpfWAjHOokBu\nRyi06z2iyXX15dPV0TA1D84M/94GL3htOv3fgujuaOnBDA+kkAVOJs29dgSVxDQV\nqKkHog+w3yKfP4wzlUXtvnCU/QKBgQDUw5zDVFGrQGauNgzdSDa79A27FtMlNnC4\nACFSxOUMZMdmuum63VzNSE0rg0m4vWV7doIWpHGYhCxrtcq9pIsFw82egw84L2gY\nIdtduB1juIXjfRcivkDPaI0sDpBcNnCBrOkCBgH7jDXQV/X0kFNU9zZMA6y8JrxM\nGiFSleoJMwKBgQDjUEa0GODvvvD5UjuJEGn6PjGziSZLPU6b1EV2gwn2nzag4DfQ\nUDgH21Q39l1hQqtSWiy53krevnCFErJ/qNIqkkks8xkeBWCZnBy6rP9eZRqvllOJ\nU73kwUUocOEIhOlXYJjzXeytFdFmWX7sluf7wkd1NhpTwYjdCGLyz/O0IQKBgQCc\n6+ki532UoNsagiLa0fgMh+PYqOzx9UUNcIsjULTefzXSPulEOR/JCBpijWJCLu46\nMR2hNYfSxSk+B8aQOFuQ1OlCj8cZ2V0c71urs695bQ7Syd/WcBu83Y/BfrxaRoyU\nF8ODCotLzA2krDtrNUdA01PonI05+BfIyTzqfEcwoQKBgQC51oF/88ODOEkzzVgh\nY+vkdzMk97clE6f31Y2817K35gA5wevkfyTE4XDt7EXUSUbnp4C4y65UI5dUSIB/\ngXxWohKk1rHgoofJVz+kkLvsWvM/h2I+mG8/BEq9GSE6EawacsJJEhI0n6He0IPj\nOtj7Sy6rrBScj76iZSSNMKz2Cg==\n-----END PRIVATE KEY-----\n"
+
+echo    .env creado y configurado con credenciales de Google.
 echo.
 
 REM =============================================
@@ -131,8 +137,7 @@ echo.
 echo    URL:   http://alimentor.local
 echo    Docs:  http://alimentor.local/docs/api
 echo.
-echo    Usuario: admin@alimentor.net.pe
-echo    Clave:   password
+echo    Registrate desde la aplicacion para obtener acceso.
 echo.
 echo    Asegurate de que Laragon este iniciado
 echo    con Apache/Nginx y MySQL activos.
