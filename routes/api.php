@@ -52,4 +52,6 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('meal-plans.reports.macronutrient');
     Route::get('meal-plans/{meal_plan}/reports/micronutrient', [ReportController::class, 'micronutrient'])
         ->name('meal-plans.reports.micronutrient');
+    Route::get('meal-plans/{meal_plan}/reports/weekly-detailed-plan', [ReportController::class, 'weeklyDetailedPlan'])
+        ->name('meal-plans.reports.weekly-detailed-plan');
 });
