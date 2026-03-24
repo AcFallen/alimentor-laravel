@@ -42,4 +42,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('meal-plans/{meal_plan}/reports/standardized-recipe', [ReportController::class, 'standardizedRecipe'])
         ->name('meal-plans.reports.standardized-recipe');
+    Route::get('meal-plans/{meal_plan}/reports/weekly-requirement', [ReportController::class, 'weeklyRequirement'])
+        ->name('meal-plans.reports.weekly-requirement');
 });
