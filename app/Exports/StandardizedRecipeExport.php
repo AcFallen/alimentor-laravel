@@ -55,6 +55,8 @@ class StandardizedRecipeExport
 
     public function generate(): string
     {
+        Carbon::setLocale('es');
+
         $spreadsheet = new Spreadsheet;
         $this->sheet = $spreadsheet->getActiveSheet();
         $this->sheet->setTitle('Receta Estandarizada');
@@ -155,10 +157,16 @@ class StandardizedRecipeExport
 
         $slotsByDate = $slots->groupBy(fn (MealPlanSlot $slot) => $slot->date->toDateString());
 
+        $grandPortionCost = 0.0;
+        $grandTotalCost = 0.0;
+
         foreach ($slotsByDate as $date => $daySlots) {
             $this->writeDateHeader(Carbon::parse($date));
 
             $slotsByMealType = $daySlots->keyBy(fn (MealPlanSlot $slot) => $slot->meal_type->value);
+
+            $dayPortionCost = 0.0;
+            $dayTotalCost = 0.0;
 
             foreach (MealType::cases() as $mealType) {
                 if (! $slotsByMealType->has($mealType->value)) {
@@ -166,9 +174,18 @@ class StandardizedRecipeExport
                 }
 
                 $slot = $slotsByMealType->get($mealType->value);
-                $this->writeMealTypeSection($slot);
+                [$mealPortionCost, $mealTotalCost] = $this->writeMealTypeSection($slot);
+                $dayPortionCost += $mealPortionCost;
+                $dayTotalCost += $mealTotalCost;
             }
+
+            $this->writeDayTotal(Carbon::parse($date), $dayPortionCost, $dayTotalCost);
+
+            $grandPortionCost += $dayPortionCost;
+            $grandTotalCost += $dayTotalCost;
         }
+
+        $this->writeGrandTotal($grandPortionCost, $grandTotalCost);
     }
 
     private function writeDateHeader(Carbon $date): void
@@ -183,7 +200,10 @@ class StandardizedRecipeExport
         $this->currentRow++;
     }
 
-    private function writeMealTypeSection(MealPlanSlot $slot): void
+    /**
+     * @return array{float, float}
+     */
+    private function writeMealTypeSection(MealPlanSlot $slot): array
     {
         $mealLabel = self::MEAL_TYPE_LABELS[$slot->meal_type->value] ?? $slot->meal_type->value;
 
@@ -233,6 +253,8 @@ class StandardizedRecipeExport
 
         $this->writeMealTotal($mealLabel, $mealPortionCostTotal, $mealTotalCostTotal);
         $this->currentRow++;
+
+        return [$mealPortionCostTotal, $mealTotalCostTotal];
     }
 
     /**
@@ -263,13 +285,14 @@ class StandardizedRecipeExport
 
             $unitName = $foodUnit?->name ?? 'Por configurar';
             $equivalentInGrams = (float) ($foodUnit?->equivalent_in_grams ?? 1);
-            $netQuantityGrams = $quantity * $equivalentInGrams;
+            $netQuantityGrams = $quantity;
 
             $performance = (float) ($food?->performance ?? 100);
             $grossQuantityGrams = $performance > 0 ? ($netQuantityGrams / ($performance / 100)) : $netQuantityGrams;
 
             $unitCost = (float) ($foodUnit?->cost ?? 0);
-            $portionCost = $unitCost * $quantity;
+            $unitsUsed = $equivalentInGrams > 0 ? ($netQuantityGrams / $equivalentInGrams) : 0;
+            $portionCost = $unitCost * $unitsUsed;
             $totalCost = $portionCost * $diners;
 
             $recipeTotalPortionCost += $portionCost;
@@ -311,13 +334,14 @@ class StandardizedRecipeExport
 
         $unitName = $foodUnit?->name ?? 'Por configurar';
         $equivalentInGrams = (float) ($foodUnit?->equivalent_in_grams ?? 1);
-        $netQuantityGrams = $quantity * $equivalentInGrams;
+        $netQuantityGrams = $quantity;
 
         $performance = (float) ($food?->performance ?? 100);
         $grossQuantityGrams = $performance > 0 ? ($netQuantityGrams / ($performance / 100)) : $netQuantityGrams;
 
         $unitCost = (float) ($foodUnit?->cost ?? 0);
-        $portionCost = $unitCost * $quantity;
+        $unitsUsed = $equivalentInGrams > 0 ? ($netQuantityGrams / $equivalentInGrams) : 0;
+        $portionCost = $unitCost * $unitsUsed;
         $totalCost = $portionCost * $diners;
 
         $row = $this->currentRow;
@@ -357,6 +381,42 @@ class StandardizedRecipeExport
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF4472C4']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'wrapText' => true],
             'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+        ]);
+
+        $this->currentRow++;
+    }
+
+    private function writeDayTotal(Carbon $date, float $portionCost, float $totalCost): void
+    {
+        $this->sheet->mergeCells("A{$this->currentRow}:F{$this->currentRow}");
+        $this->setCellValue("A{$this->currentRow}", 'Total Día '.$date->format('d/m/Y'));
+        $this->sheet->mergeCells("G{$this->currentRow}:H{$this->currentRow}");
+        $this->setCellValue("G{$this->currentRow}", number_format($portionCost, 2));
+        $this->setCellValue("I{$this->currentRow}", number_format($totalCost, 2));
+
+        $this->applyStyle("A{$this->currentRow}:I{$this->currentRow}", [
+            'font' => ['bold' => true, 'size' => 11],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFB4C6E7']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT],
+            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+        ]);
+
+        $this->currentRow += 2;
+    }
+
+    private function writeGrandTotal(float $portionCost, float $totalCost): void
+    {
+        $this->sheet->mergeCells("A{$this->currentRow}:F{$this->currentRow}");
+        $this->setCellValue("A{$this->currentRow}", 'TOTAL PLANIFICACIÓN');
+        $this->sheet->mergeCells("G{$this->currentRow}:H{$this->currentRow}");
+        $this->setCellValue("G{$this->currentRow}", number_format($portionCost, 2));
+        $this->setCellValue("I{$this->currentRow}", number_format($totalCost, 2));
+
+        $this->applyStyle("A{$this->currentRow}:I{$this->currentRow}", [
+            'font' => ['bold' => true, 'size' => 12, 'color' => ['argb' => 'FFFFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1F4E79']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT],
+            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_MEDIUM]],
         ]);
 
         $this->currentRow++;
