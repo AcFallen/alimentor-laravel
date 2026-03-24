@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\KitchenOrderExport;
 use App\Exports\StandardizedRecipeExport;
 use App\Exports\WeeklyRequirementExport;
+use App\Http\Requests\Report\KitchenOrderReportRequest;
 use App\Http\Requests\Report\StandardizedRecipeReportRequest;
 use App\Http\Requests\Report\WeeklyRequirementReportRequest;
 use App\Models\MealPlan;
@@ -25,6 +27,17 @@ class ReportController extends Controller
     public function weeklyRequirement(WeeklyRequirementReportRequest $request, MealPlan $mealPlan): BinaryFileResponse
     {
         $export = new WeeklyRequirementExport(
+            mealPlan: $mealPlan,
+            startDate: $request->validated('start_date'),
+            endDate: $request->validated('end_date'),
+        );
+
+        return $this->downloadExport($export->generate());
+    }
+
+    public function kitchenOrder(KitchenOrderReportRequest $request, MealPlan $mealPlan): BinaryFileResponse
+    {
+        $export = new KitchenOrderExport(
             mealPlan: $mealPlan,
             startDate: $request->validated('start_date'),
             endDate: $request->validated('end_date'),
