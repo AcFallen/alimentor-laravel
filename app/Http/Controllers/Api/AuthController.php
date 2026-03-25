@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use Carbon\Carbon;
 use Google\Service\Sheets;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,9 +22,9 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        $status = $this->getLicenseStatus($sheetsService, $user->email);
+        $license = $this->getLicenseData($sheetsService, $user->email);
 
-        if ($status === null) {
+        if ($license === null) {
             Auth::guard('web')->logout();
 
             return response()->json([
@@ -31,12 +32,25 @@ class AuthController extends Controller
             ], 403);
         }
 
-        if ($status !== 'active') {
+        if ($license['status'] !== 'active') {
             Auth::guard('web')->logout();
 
             return response()->json([
-                'message' => 'Tu licencia está en estado: '.$status.'. Contacta al administrador.',
-                'status' => $status,
+                'message' => 'Tu licencia está en estado: '.$license['status'].'. Contacta al administrador.',
+                'status' => $license['status'],
+            ], 403);
+        }
+
+        // Sincronizar expires_at del Sheet a la BD local
+        $expiresAt = $this->parseExpirationDate($license['expires_at']);
+        $user->update(['license_expires_at' => $expiresAt]);
+
+        if ($expiresAt && now()->greaterThan($expiresAt)) {
+            Auth::guard('web')->logout();
+
+            return response()->json([
+                'message' => 'Tu licencia venció el '.$expiresAt->format('d/m/Y').'. Contacta al administrador.',
+                'status' => 'expired',
             ], 403);
         }
 
@@ -63,7 +77,29 @@ class AuthController extends Controller
         return response()->json($request->user());
     }
 
-    private function getLicenseStatus(Sheets $sheetsService, string $email): ?string
+    private function parseExpirationDate(?string $date): ?Carbon
+    {
+        if (empty($date)) {
+            return null;
+        }
+
+        $formats = ['d/m/Y', 'Y-m-d', 'd-m-Y', 'm/d/Y'];
+
+        foreach ($formats as $format) {
+            try {
+                return Carbon::createFromFormat($format, $date)->startOfDay();
+            } catch (\Exception) {
+                continue;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array{status: string, expires_at: string|null}|null
+     */
+    private function getLicenseData(Sheets $sheetsService, string $email): ?array
     {
         $sheetId = config('google_sheets.sheet_id');
 
@@ -76,7 +112,10 @@ class AuthController extends Controller
 
         foreach ($rows as $row) {
             if (isset($row[2]) && $row[2] === $email) {
-                return $row[3] ?? null; // D: status
+                return [
+                    'status' => $row[3] ?? null,
+                    'expires_at' => ! empty($row[4]) ? $row[4] : null,
+                ];
             }
         }
 
