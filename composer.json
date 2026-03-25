@@ -11,7 +11,6 @@
     "require": {
         "php": "^8.3",
         "dedoc/scramble": "^0.13.16",
-        "google/apiclient": "^2.19",
         "laravel/framework": "^13.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",

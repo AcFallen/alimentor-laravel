@@ -25,6 +25,8 @@ class RegisterRequest extends FormRequest
         return [
             'client_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:6'],
+            'phone' => ['nullable', 'string', 'max:20'],
         ];
     }
 
@@ -37,6 +39,8 @@ class RegisterRequest extends FormRequest
             'client_name.required' => 'El nombre del cliente es obligatorio.',
             'email.required' => 'El correo electrónico es obligatorio.',
             'email.email' => 'El correo electrónico debe ser válido.',
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min' => 'La contraseña debe tener al menos 6 caracteres.',
         ];
     }
 }

@@ -61,13 +61,7 @@ REM  3. Configurar .env
 REM =============================================
 echo [3/7] Configurando archivo .env...
 copy .env.example .env >nul
-
-REM Configurar credenciales de Google Sheets
->>".env" echo GOOGLE_SHEETS_SHEET_ID=1Ubu_bgC1ObfHcbowDKkgDEHvZWq5wBVZzSZFmPL2-oY
->>".env" echo GOOGLE_SERVICE_ACCOUNT_EMAIL=alimentor-local-licencias@alimentor.iam.gserviceaccount.com
->>".env" echo GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCijU4VKBW6CHzL\nM2Zx06qJ3lqV7eHx+6TLhVy9o/QqLhol8kbfaVtwm0V7n7CITCZavSOld00QxKsa\nC0yZ+hbELEFqYQLVyIbjNZ4tvyC5FyYRTIDp5JJ3tyclRhlqA4RREvMJ4wkisu1F\nw7dwR8MM6ojeAweJiu+vK46vaeQ8E66C4J5qqdRu7EoKabguWNA78RBqnC3dntYP\n3OM8bUWeB1gdYwA56mPnZlyXDIyif7n11CVjKHEypE9l5QmYULSvo4KvimDTJFBV\n4wrhD4eMNYGFW+EaT0kbnMSeNdGQ3GBIGbH2AWmK1ztoEQKVHYfEJI7MtyFhWull\nCRNhSM9jAgMBAAECggEAEGdoKNRpv44EYfvm67fA7wwvDLr74Tqpj8GpRpiuwY7z\neT7bjhzeFcgQRACChSQCKYgKz95GkFmjLAwAh/gSp2tmkpYFqONapr/jcu8Qc1Kg\nYdXcRejuKwH4WQJGUEot5oHzYDJhhUyUi0TL/0W5VlVYyJF6XOlWH3xVeDhHHb90\nMiNh6ghkk2JxNAzQC8hFOted3a5UbVzIqL14QHEK4FcypHrzEMSdobOy4MVhYaj3\n6hfGaocjuZa5VRqZlzVqpRktBMJXy1Y/y1AUKLU82BzCE3saigNdPtp1/lleYKkh\n5HSnS9PUNg9jvgSjE/bWwwCshNWJMwHTBn3CkfGMEQKBgQDSXWmZJzBOOv06RuAp\n8FYTNr3F5SiQlYl8SbiBbsFsPsS94Qf/yPRdZcgr06lEn1cn9gWSb6jj+ESssGg0\nQrOuBE3ABJMCyrz2+n5IqTJZx2jlKH+JWdS5V7uf8wY/L9PaoL8t0fjEXTngaarN\nepWtx2DkiSADw/YTxSAWVza4OwKBgQDF0JusvF9zS9rBh4OQq7I2gbC6c9hNSNy/\nCfdJsSHem88gBaoSyWhaQe5Rnu2T/nllRsvHv+sFNOlL1GRUjF8jWDyIBzSor8Y0\nJmhaZkJaMRE4Kjyo5ELnG29PSxLL9kvdciXla6NiYsac1Sx6Q5O06VeMELNOeABV\nxhJC6xL6+QKBgD0uFawJDa9y0HrGaiNIVoA4B3EqeGW0V8vh1NsvzukgSC/A5oap\ndwhCtbipUi02+i4RCwXPm5rRdYeTtnqce408izAxJGBHfjWGHHwdWRtrN0KOSKk1\nivxsW5DlKQfvbPnEjlVRH7xcMJznnlksMaPcvH06tCjkMQkG55IXwz5JAoGAJWga\nWCLTBfF9L4WZunzNWYNS0R9g8tRpcfLHgXbuibL7CvonPCA8DH1VPLgKAydm+2DU\n3jQLlFN6Hm3OfzKANyXTZIHAUnnSyD/PEfEucPHAaNeL2wA3Ko7EkMEIj+tGU1zn\nj6e4IL2/Ax9IpuIqh1ZsyL7LuXX10kJ/Z4oeb7kCgYEApFhCrV09wpq8GkOrAYZ7\nXjjRWRJv8B7PUsWIVCBWnjx8lZMB7i3whZMLNbaYEZW2aJW4WZLSctjQ7II3yCBb\nVwW4aqbOApIbxyi+US49DSzZINv9NpWZT+zjNoCHO8EJ8lklnqLNgBeIBYwXWyee\n09mKNHeTYVPJJSFzBsRNwpU=\n-----END PRIVATE KEY-----"
-
-echo    .env creado y configurado con credenciales de Google.
+echo    .env creado desde .env.example
 echo.
 
 REM =============================================
