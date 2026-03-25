@@ -61,7 +61,12 @@ REM  3. Configurar .env
 REM =============================================
 echo [3/7] Configurando archivo .env...
 copy .env.example .env >nul
-echo    .env creado desde .env.example
+
+REM Configurar Supabase
+>>".env" echo SUPABASE_URL=https://abqdfednhtzzjeckmosc.supabase.co
+>>".env" echo SUPABASE_API_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFicWRmZWRuaHR6emplY2ttb3NjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NTc0MjAsImV4cCI6MjA5MDAzMzQyMH0.xrnCOL-DW-U9AVO95mvsaZV0b1AeQyjoBoH1Na2lDw8
+
+echo    .env creado y configurado.
 echo.
 
 REM =============================================
