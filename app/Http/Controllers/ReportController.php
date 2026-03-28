@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\KitchenOrderExport;
+use App\Exports\KitchenOrderPdfExport;
 use App\Exports\MacronutrientReportExport;
 use App\Exports\MicronutrientReportExport;
 use App\Exports\NutritionalReportExport;
@@ -71,6 +72,18 @@ class ReportController extends Controller
 
     public function kitchenOrder(KitchenOrderReportRequest $request, MealPlan $mealPlan): BinaryFileResponse
     {
+        $format = $request->validated('format', 'xlsx');
+
+        if ($format === 'pdf') {
+            $export = new KitchenOrderPdfExport(
+                mealPlan: $mealPlan,
+                startDate: $request->validated('start_date'),
+                endDate: $request->validated('end_date'),
+            );
+
+            return $this->downloadPdf($export->generate());
+        }
+
         $export = new KitchenOrderExport(
             mealPlan: $mealPlan,
             startDate: $request->validated('start_date'),
