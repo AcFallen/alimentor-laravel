@@ -10,6 +10,7 @@ use App\Exports\StandardizedRecipeExport;
 use App\Exports\StandardizedRecipePdfExport;
 use App\Exports\WeeklyDetailedPlanExport;
 use App\Exports\WeeklyRequirementExport;
+use App\Exports\WeeklyRequirementPdfExport;
 use App\Http\Requests\Report\KitchenOrderReportRequest;
 use App\Http\Requests\Report\MacronutrientReportRequest;
 use App\Http\Requests\Report\MicronutrientReportRequest;
@@ -47,6 +48,18 @@ class ReportController extends Controller
 
     public function weeklyRequirement(WeeklyRequirementReportRequest $request, MealPlan $mealPlan): BinaryFileResponse
     {
+        $format = $request->validated('format', 'xlsx');
+
+        if ($format === 'pdf') {
+            $export = new WeeklyRequirementPdfExport(
+                mealPlan: $mealPlan,
+                startDate: $request->validated('start_date'),
+                endDate: $request->validated('end_date'),
+            );
+
+            return $this->downloadPdf($export->generate());
+        }
+
         $export = new WeeklyRequirementExport(
             mealPlan: $mealPlan,
             startDate: $request->validated('start_date'),
