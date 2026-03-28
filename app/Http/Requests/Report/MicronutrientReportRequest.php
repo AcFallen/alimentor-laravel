@@ -28,6 +28,7 @@ class MicronutrientReportRequest extends FormRequest
             'end_date' => ['required', 'date_format:Y-m-d', 'after_or_equal:start_date'],
             'nutrient_keys' => ['required', 'array', 'min:1'],
             'nutrient_keys.*' => ['required', 'string', 'in:'.implode(',', $validKeys)],
+            'format' => ['sometimes', 'in:xlsx,pdf'],
         ];
     }
 }

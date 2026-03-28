@@ -23,6 +23,7 @@ class WeeklyDetailedPlanReportRequest extends FormRequest
             'objective' => ['sometimes', 'string', 'max:255'],
             'user_name' => ['sometimes', 'string', 'max:255'],
             'nutritionist' => ['sometimes', 'string', 'max:255'],
+            'format' => ['sometimes', 'in:xlsx,pdf'],
         ];
     }
 }

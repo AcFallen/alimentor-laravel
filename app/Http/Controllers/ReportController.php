@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Exports\KitchenOrderExport;
 use App\Exports\KitchenOrderPdfExport;
 use App\Exports\MacronutrientReportExport;
+use App\Exports\MacronutrientReportPdfExport;
 use App\Exports\MicronutrientReportExport;
+use App\Exports\MicronutrientReportPdfExport;
 use App\Exports\NutritionalReportExport;
 use App\Exports\NutritionalReportPdfExport;
 use App\Exports\StandardizedRecipeExport;
 use App\Exports\StandardizedRecipePdfExport;
 use App\Exports\WeeklyDetailedPlanExport;
+use App\Exports\WeeklyDetailedPlanPdfExport;
 use App\Exports\WeeklyRequirementExport;
 use App\Exports\WeeklyRequirementPdfExport;
 use App\Http\Requests\Report\KitchenOrderReportRequest;
@@ -119,6 +122,18 @@ class ReportController extends Controller
 
     public function macronutrient(MacronutrientReportRequest $request, MealPlan $mealPlan): BinaryFileResponse
     {
+        $format = $request->validated('format', 'xlsx');
+
+        if ($format === 'pdf') {
+            $export = new MacronutrientReportPdfExport(
+                mealPlan: $mealPlan,
+                startDate: $request->validated('start_date'),
+                endDate: $request->validated('end_date'),
+            );
+
+            return $this->downloadPdf($export->generate());
+        }
+
         $export = new MacronutrientReportExport(
             mealPlan: $mealPlan,
             startDate: $request->validated('start_date'),
@@ -130,6 +145,19 @@ class ReportController extends Controller
 
     public function micronutrient(MicronutrientReportRequest $request, MealPlan $mealPlan): BinaryFileResponse
     {
+        $format = $request->validated('format', 'xlsx');
+
+        if ($format === 'pdf') {
+            $export = new MicronutrientReportPdfExport(
+                mealPlan: $mealPlan,
+                startDate: $request->validated('start_date'),
+                endDate: $request->validated('end_date'),
+                nutrientKeys: $request->validated('nutrient_keys'),
+            );
+
+            return $this->downloadPdf($export->generate());
+        }
+
         $export = new MicronutrientReportExport(
             mealPlan: $mealPlan,
             startDate: $request->validated('start_date'),
@@ -142,6 +170,21 @@ class ReportController extends Controller
 
     public function weeklyDetailedPlan(WeeklyDetailedPlanReportRequest $request, MealPlan $mealPlan): BinaryFileResponse
     {
+        $format = $request->validated('format', 'xlsx');
+
+        if ($format === 'pdf') {
+            $export = new WeeklyDetailedPlanPdfExport(
+                mealPlan: $mealPlan,
+                startDate: $request->validated('start_date'),
+                endDate: $request->validated('end_date'),
+                objective: $request->validated('objective', ''),
+                userName: $request->validated('user_name', ''),
+                nutritionist: $request->validated('nutritionist', ''),
+            );
+
+            return $this->downloadPdf($export->generate());
+        }
+
         $export = new WeeklyDetailedPlanExport(
             mealPlan: $mealPlan,
             startDate: $request->validated('start_date'),
