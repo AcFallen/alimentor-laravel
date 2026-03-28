@@ -7,6 +7,7 @@ use App\Exports\MacronutrientReportExport;
 use App\Exports\MicronutrientReportExport;
 use App\Exports\NutritionalReportExport;
 use App\Exports\StandardizedRecipeExport;
+use App\Exports\StandardizedRecipePdfExport;
 use App\Exports\WeeklyDetailedPlanExport;
 use App\Exports\WeeklyRequirementExport;
 use App\Http\Requests\Report\KitchenOrderReportRequest;
@@ -23,6 +24,18 @@ class ReportController extends Controller
 {
     public function standardizedRecipe(StandardizedRecipeReportRequest $request, MealPlan $mealPlan): BinaryFileResponse
     {
+        $format = $request->validated('format', 'xlsx');
+
+        if ($format === 'pdf') {
+            $export = new StandardizedRecipePdfExport(
+                mealPlan: $mealPlan,
+                startDate: $request->validated('start_date'),
+                endDate: $request->validated('end_date'),
+            );
+
+            return $this->downloadPdf($export->generate());
+        }
+
         $export = new StandardizedRecipeExport(
             mealPlan: $mealPlan,
             startDate: $request->validated('start_date'),
@@ -107,6 +120,15 @@ class ReportController extends Controller
         return response()
             ->download($path, basename($path), [
                 'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ])
+            ->deleteFileAfterSend();
+    }
+
+    private function downloadPdf(string $path): BinaryFileResponse
+    {
+        return response()
+            ->download($path, basename($path), [
+                'Content-Type' => 'application/pdf',
             ])
             ->deleteFileAfterSend();
     }
