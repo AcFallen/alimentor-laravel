@@ -7,6 +7,7 @@ use App\Exports\KitchenOrderPdfExport;
 use App\Exports\MacronutrientReportExport;
 use App\Exports\MicronutrientReportExport;
 use App\Exports\NutritionalReportExport;
+use App\Exports\NutritionalReportPdfExport;
 use App\Exports\StandardizedRecipeExport;
 use App\Exports\StandardizedRecipePdfExport;
 use App\Exports\WeeklyDetailedPlanExport;
@@ -95,6 +96,18 @@ class ReportController extends Controller
 
     public function nutritional(NutritionalReportRequest $request, MealPlan $mealPlan): BinaryFileResponse
     {
+        $format = $request->validated('format', 'xlsx');
+
+        if ($format === 'pdf') {
+            $export = new NutritionalReportPdfExport(
+                mealPlan: $mealPlan,
+                startDate: $request->validated('start_date'),
+                endDate: $request->validated('end_date'),
+            );
+
+            return $this->downloadPdf($export->generate());
+        }
+
         $export = new NutritionalReportExport(
             mealPlan: $mealPlan,
             startDate: $request->validated('start_date'),
