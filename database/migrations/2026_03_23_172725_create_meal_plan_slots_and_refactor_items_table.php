@@ -64,13 +64,10 @@ return new class extends Migration
             $table->foreignId('meal_plan_slot_id')->nullable(false)->change();
         });
 
-        // Drop old columns and index
-        Schema::table('meal_plan_items', function (Blueprint $table) {
-            $table->dropIndex(['meal_plan_id', 'date', 'meal_type']);
-        });
-
+        // Drop old columns and index (foreign key first, then index)
         Schema::table('meal_plan_items', function (Blueprint $table) {
             $table->dropForeign(['meal_plan_id']);
+            $table->dropIndex(['meal_plan_id', 'date', 'meal_type']);
         });
 
         Schema::table('meal_plan_items', function (Blueprint $table) {
