@@ -15,6 +15,11 @@ SET FOLDER_NAME=alimentor
 SET DB_NAME=alimentor_laravel
 SET DB_USER=root
 SET DB_PASS=
+SET PHP_MIN_VERSION=8.3
+
+REM Flags de rollback (indican que fue creado)
+SET CLONED=0
+SET DB_CREATED=0
 
 REM =============================================
 REM  1. Verificar requisitos
@@ -26,7 +31,30 @@ where php >nul 2>nul || (echo ERROR: PHP no encontrado. Asegurate de que Laragon
 where composer >nul 2>nul || (echo ERROR: Composer no encontrado. Asegurate de que Laragon este iniciado. && pause && exit /b 1)
 where mysql >nul 2>nul || (echo ERROR: MySQL CLI no encontrado. Asegurate de que Laragon este iniciado. && pause && exit /b 1)
 
-echo    Git, PHP, Composer y MySQL encontrados.
+REM Verificar version de PHP
+for /f "tokens=2 delims= " %%v in ('php -v 2^>nul ^| findstr /i "^PHP"') do (
+    for /f "tokens=1,2 delims=." %%a in ("%%v") do (
+        set PHP_MAJOR=%%a
+        set PHP_MINOR=%%b
+    )
+)
+
+if %PHP_MAJOR% LSS 8 (
+    echo ERROR: Se requiere PHP %PHP_MIN_VERSION% o superior. Tu version es %PHP_MAJOR%.%PHP_MINOR%.
+    echo        Puedes descargar PHP 8.4 desde https://windows.php.net/download
+    echo        o instalar Laravel Herd desde https://herd.laravel.com
+    pause
+    exit /b 1
+)
+if %PHP_MAJOR% EQU 8 if %PHP_MINOR% LSS 3 (
+    echo ERROR: Se requiere PHP %PHP_MIN_VERSION% o superior. Tu version es %PHP_MAJOR%.%PHP_MINOR%.
+    echo        Puedes descargar PHP 8.4 desde https://windows.php.net/download
+    echo        o instalar Laravel Herd desde https://herd.laravel.com
+    pause
+    exit /b 1
+)
+
+echo    Git, PHP %PHP_MAJOR%.%PHP_MINOR%, Composer y MySQL encontrados.
 echo.
 
 REM =============================================
@@ -44,10 +72,10 @@ if exist %FOLDER_NAME% (
 git clone %REPO_URL% %FOLDER_NAME%
 if %errorlevel% neq 0 (
     echo ERROR: No se pudo clonar el repositorio.
-    pause
-    exit /b 1
+    goto :ROLLBACK
 )
 
+SET CLONED=1
 echo    Repositorio clonado.
 echo.
 
@@ -82,10 +110,10 @@ if "%DB_PASS%"=="" (
 
 if %errorlevel% neq 0 (
     echo ERROR: No se pudo crear la base de datos. Verifica que MySQL este corriendo en Laragon.
-    pause
-    exit /b 1
+    goto :ROLLBACK
 )
 
+SET DB_CREATED=1
 echo    Base de datos '%DB_NAME%' lista.
 echo.
 
@@ -96,8 +124,7 @@ echo [5/7] Instalando dependencias de PHP...
 call composer install --no-interaction --prefer-dist --optimize-autoloader
 if %errorlevel% neq 0 (
     echo ERROR: Fallo al instalar dependencias de PHP.
-    pause
-    exit /b 1
+    goto :ROLLBACK
 )
 echo.
 
@@ -106,6 +133,10 @@ REM  6. Generar clave de aplicacion
 REM =============================================
 echo [6/7] Generando clave de aplicacion...
 php artisan key:generate --no-interaction
+if %errorlevel% neq 0 (
+    echo ERROR: Fallo al generar la clave de aplicacion.
+    goto :ROLLBACK
+)
 echo.
 
 REM =============================================
@@ -115,15 +146,13 @@ echo [7/7] Ejecutando migraciones y cargando datos (esto puede tomar unos segund
 php artisan migrate --force --no-interaction
 if %errorlevel% neq 0 (
     echo ERROR: Fallo al ejecutar migraciones.
-    pause
-    exit /b 1
+    goto :ROLLBACK
 )
 
 php artisan db:seed --force --no-interaction
 if %errorlevel% neq 0 (
     echo ERROR: Fallo al cargar datos iniciales.
-    pause
-    exit /b 1
+    goto :ROLLBACK
 )
 
 php artisan optimize:clear >nul 2>nul
@@ -142,3 +171,39 @@ echo    Asegurate de que Laragon este iniciado
 echo    con Apache/Nginx y MySQL activos.
 echo ============================================
 pause
+exit /b 0
+
+REM =============================================
+REM  ROLLBACK - Limpieza en caso de error
+REM =============================================
+:ROLLBACK
+echo.
+echo ============================================
+echo    ROLLBACK - Deshaciendo cambios...
+echo ============================================
+
+REM Volver al directorio original antes de eliminar
+cd /d %~dp0
+
+if %DB_CREATED% EQU 1 (
+    echo    Eliminando base de datos '%DB_NAME%'...
+    if "%DB_PASS%"=="" (
+        mysql -u %DB_USER% -e "DROP DATABASE IF EXISTS %DB_NAME%;" 2>nul
+    ) else (
+        mysql -u %DB_USER% -p%DB_PASS% -e "DROP DATABASE IF EXISTS %DB_NAME%;" 2>nul
+    )
+    echo    Base de datos eliminada.
+)
+
+if %CLONED% EQU 1 (
+    echo    Eliminando carpeta '%FOLDER_NAME%'...
+    rmdir /s /q %FOLDER_NAME% 2>nul
+    echo    Carpeta eliminada.
+)
+
+echo.
+echo    Rollback completado. Ningun archivo residual quedo en el sistema.
+echo    Revisa el error anterior e intenta nuevamente.
+echo ============================================
+pause
+exit /b 1
