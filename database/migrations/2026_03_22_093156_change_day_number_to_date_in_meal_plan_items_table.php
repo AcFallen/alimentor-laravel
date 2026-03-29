@@ -9,6 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('meal_plan_items', function (Blueprint $table) {
+            $table->dropForeign(['meal_plan_id']);
             $table->dropIndex(['meal_plan_id', 'day_number', 'meal_type']);
         });
 
@@ -18,6 +19,7 @@ return new class extends Migration
         });
 
         Schema::table('meal_plan_items', function (Blueprint $table) {
+            $table->foreign('meal_plan_id')->references('id')->on('meal_plans')->cascadeOnDelete();
             $table->index(['meal_plan_id', 'date', 'meal_type']);
         });
     }
@@ -25,12 +27,14 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('meal_plan_items', function (Blueprint $table) {
+            $table->dropForeign(['meal_plan_id']);
             $table->dropIndex(['meal_plan_id', 'date', 'meal_type']);
             $table->dropColumn('date');
             $table->unsignedSmallInteger('day_number')->after('meal_plan_id');
         });
 
         Schema::table('meal_plan_items', function (Blueprint $table) {
+            $table->foreign('meal_plan_id')->references('id')->on('meal_plans')->cascadeOnDelete();
             $table->index(['meal_plan_id', 'day_number', 'meal_type']);
         });
     }
